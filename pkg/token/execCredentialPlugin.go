@@ -97,10 +97,9 @@ func (p *execCredentialPlugin) Do() error {
 	}
 
 	klog.V(5).Info("acquire new token")
-	// run the underlying provider
-	token, err = p.provider.Token()
+	token, err = p.GetToken()
 	if err != nil {
-		return fmt.Errorf("failed to get token: %s", err)
+		return err
 	}
 
 	// save token
@@ -109,4 +108,14 @@ func (p *execCredentialPlugin) Do() error {
 	}
 
 	return p.execCredentialWriter.Write(token)
+}
+
+func (p *execCredentialPlugin) GetToken() (adal.Token, error) {
+	// run the underlying provider
+	token, err := p.provider.Token()
+	if err != nil {
+		return adal.Token{}, fmt.Errorf("failed to get token: %s", err)
+	}
+
+	return token, nil
 }
